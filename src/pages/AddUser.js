@@ -41,6 +41,17 @@ const AddUser = () => {
       return;
     }
 
+    if (
+      new Date(formData.internship_start) > new Date(formData.internship_end)
+    ) {
+      Swal.fire(
+        'Error',
+        'Tanggal mulai magang tidak boleh melebihi tanggal selesai.',
+        'error'
+      );
+      return;
+    }
+
     try {
       await api.post('/users', formData);
       Swal.fire(

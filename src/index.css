@@ -47,3 +47,14 @@ body {
 .input-group-text {
   background-color: transparent;
 }
+
+.back-button {
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 6px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.back-button:hover {
+  background-color: #f8f9fa; 
+  text-decoration: none;
+}

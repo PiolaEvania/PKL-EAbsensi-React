@@ -45,6 +45,21 @@ const EditAttendance = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'date') {
+      const selectedDate = new Date(value.replace(/-/g, '/'));
+      const day = selectedDate.getDay();
+
+      if (day === 0 || day === 6) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Tanggal Tidak Valid',
+          text: 'Anda tidak bisa memilih hari Sabtu atau Minggu.',
+        });
+        return;
+      }
+    }
+
     const updatedData = { ...formData, [name]: value };
     const lat =
       name === 'check_in_latitude' ? value : updatedData.check_in_latitude;

@@ -59,13 +59,11 @@ const AttendanceDetail = () => {
       <div className="mb-4">
         <Button
           variant="link"
-          className="text-decoration-none p-0"
+          className="back-button text-decoration-none p-0"
           onClick={() => navigate(-1)}
         >
           <h1 className="text-black mb-0 d-flex align-items-center">
-            <span className="fw-bold me-2" style={{ fontSize: '1.5rem' }}>
-              &lt;
-            </span>
+            <Icon name="chevron-left" className="me-2" />
             Detail Absensi
           </h1>
         </Button>

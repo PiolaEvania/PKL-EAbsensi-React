@@ -42,6 +42,20 @@ const EditUser = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (
+      formData.internship_start &&
+      formData.internship_end &&
+      new Date(formData.internship_start) > new Date(formData.internship_end)
+    ) {
+      Swal.fire(
+        'Error',
+        'Tanggal mulai magang tidak boleh melebihi tanggal selesai.',
+        'error'
+      );
+      return;
+    }
+
     const { password, ...otherData } = formData;
     const payload = { ...otherData };
 
@@ -162,11 +176,11 @@ const EditUser = () => {
                     <Form.Control
                       type="text"
                       name="phone"
-                      className="input-group-text input-group-merged-input"
+                      className="input-group-merged-input"
                       value={formData.phone || ''}
                       onChange={handleChange}
                     />
-                    <span className="input-group-text-merged">
+                    <span className="input-group-text input-group-text-merged">
                       <Icon name="telephone" />
                     </span>
                   </div>
