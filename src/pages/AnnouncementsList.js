@@ -168,6 +168,7 @@ const AnnouncementsList = () => {
                 value={currentAnnouncement?.content || ''}
                 onChange={handleEditChange}
                 required
+                data-testid="content-input"
               />
             </Form.Group>
             <Form.Group className="mb-3">
