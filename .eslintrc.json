@@ -25,7 +25,8 @@
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "no-undef": "off",
-    "react/no-unescaped-entities": "off"
+    "react/no-unescaped-entities": "off",
+    "display-name": "off"
   },
   "settings": {
     "react": {
