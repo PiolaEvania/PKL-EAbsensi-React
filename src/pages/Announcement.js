@@ -13,7 +13,7 @@ const Announcement = () => {
 
   const getStartDateDefault = () => {
     const date = new Date();
-    date.setHours(date.getHours() - 1);
+    date.setHours(date.getHours());
     return formatDateTimeLocal(date);
   };
 
@@ -31,6 +31,15 @@ const Announcement = () => {
     e.preventDefault();
     if (!formData.content || !formData.start_date || !formData.end_date) {
       Swal.fire('Error', 'Semua kolom wajib diisi.', 'error');
+      return;
+    }
+
+    if (new Date(formData.start_date) > new Date(formData.end_date)) {
+      Swal.fire(
+        'Error',
+        'Tanggal mulai tampil tidak boleh melebihi tanggal selesai.',
+        'error'
+      );
       return;
     }
 

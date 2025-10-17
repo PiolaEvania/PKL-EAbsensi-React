@@ -76,6 +76,19 @@ const AnnouncementsList = () => {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+
+    if (
+      new Date(currentAnnouncement.start_date) >
+      new Date(currentAnnouncement.end_date)
+    ) {
+      Swal.fire(
+        'Error',
+        'Tanggal mulai tampil tidak boleh melebihi tanggal selesai.',
+        'error'
+      );
+      return;
+    }
+
     try {
       await api.put(`/announcements/${currentAnnouncement._id}`, {
         content: currentAnnouncement.content,
