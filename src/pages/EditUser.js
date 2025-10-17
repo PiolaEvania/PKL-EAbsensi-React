@@ -9,6 +9,7 @@ const EditUser = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
+  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -20,6 +21,7 @@ const EditUser = () => {
         const user = res.data;
         setFormData({
           ...user,
+          password: '',
           internship_start: user.internship_start
             ? new Date(user.internship_start).toISOString().split('T')[0]
             : '',
@@ -40,8 +42,51 @@ const EditUser = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name) newErrors.name = 'Nama Lengkap wajib diisi.';
+    else if (!/^[a-zA-Z\s]+$/.test(formData.name))
+      newErrors.name = 'Nama hanya boleh berisi huruf dan spasi.';
+
+    if (!formData.username) newErrors.username = 'Username wajib diisi.';
+    else if (!/^[a-z0-9]+$/.test(formData.username))
+      newErrors.username =
+        'Username hanya boleh berisi perpaduan huruf kecil dan angka, tanpa spasi.';
+
+    if (
+      formData.password &&
+      (formData.password.length < 6 || formData.password.length > 10)
+    )
+      newErrors.password = 'Password harus memiliki 6 hingga 10 karakter.';
+
+    if (!formData.email) newErrors.email = 'Email wajib diisi.';
+
+    if (formData.phone) {
+      if (!/^[0-9]+$/.test(formData.phone))
+        newErrors.phone = 'Nomor telepon hanya boleh berisi angka.';
+      else if (formData.phone.length > 13)
+        newErrors.phone = 'Nomor telepon maksimal 13 digit angka.';
+    }
+
+    if (!formData.internship_start)
+      newErrors.internship_start = 'Tanggal mulai wajib diisi.';
+
+    if (!formData.internship_end)
+      newErrors.internship_end = 'Tanggal selesai wajib diisi.';
+
+    return newErrors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
+    setErrors({});
 
     if (
       formData.internship_start &&
@@ -102,10 +147,14 @@ const EditUser = () => {
                       className="input-group-merged-input"
                       value={formData.name || ''}
                       onChange={handleChange}
+                      isInvalid={!!errors.name}
                     />
                     <span className="input-group-text input-group-text-merged">
                       <Icon name="person" />
                     </span>
+                    <Form.Control.Feedback type="invalid">
+                      {errors.name}
+                    </Form.Control.Feedback>
                   </div>
                 </Form.Group>
               </div>
@@ -119,10 +168,14 @@ const EditUser = () => {
                       className="input-group-merged-input"
                       value={formData.username || ''}
                       onChange={handleChange}
+                      isInvalid={!!errors.username}
                     />
                     <span className="input-group-text input-group-text-merged">
                       <Icon name="person-badge" />
                     </span>
+                    <Form.Control.Feedback type="invalid">
+                      {errors.username}
+                    </Form.Control.Feedback>
                   </div>
                 </Form.Group>
               </div>
@@ -136,10 +189,14 @@ const EditUser = () => {
                       className="input-group-merged-input"
                       value={formData.email || ''}
                       onChange={handleChange}
+                      isInvalid={!!errors.email}
                     />
                     <span className="input-group-text input-group-text-merged">
                       <Icon name="at" />
-                    </span>{' '}
+                    </span>
+                    <Form.Control.Feedback type="invalid">
+                      {errors.email}
+                    </Form.Control.Feedback>
                   </div>
                 </Form.Group>
               </div>
@@ -153,6 +210,7 @@ const EditUser = () => {
                       name="password"
                       placeholder="Kosongkan jika tidak ingin diubah"
                       onChange={handleChange}
+                      isInvalid={!!errors.password}
                     />
                     <Button
                       variant="outline-secondary"
@@ -166,6 +224,9 @@ const EditUser = () => {
                         <Icon name="eye" />
                       )}
                     </Button>
+                    <Form.Control.Feedback type="invalid">
+                      {errors.password}
+                    </Form.Control.Feedback>
                   </div>
                 </Form.Group>
               </div>
@@ -179,10 +240,14 @@ const EditUser = () => {
                       className="input-group-merged-input"
                       value={formData.phone || ''}
                       onChange={handleChange}
+                      isInvalid={!!errors.phone}
                     />
                     <span className="input-group-text input-group-text-merged">
                       <Icon name="telephone" />
                     </span>
+                    <Form.Control.Feedback type="invalid">
+                      {errors.phone}
+                    </Form.Control.Feedback>
                   </div>
                 </Form.Group>
               </div>
@@ -207,7 +272,11 @@ const EditUser = () => {
                     name="internship_start"
                     value={formData.internship_start || ''}
                     onChange={handleChange}
+                    isInvalid={!!errors.internship_start}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.internship_start}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
               <div className="col-md-6">
@@ -218,7 +287,11 @@ const EditUser = () => {
                     name="internship_end"
                     value={formData.internship_end || ''}
                     onChange={handleChange}
+                    isInvalid={!!errors.internship_end}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.internship_end}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
             </div>

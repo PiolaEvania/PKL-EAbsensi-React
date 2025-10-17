@@ -17,6 +17,7 @@ const AddUser = () => {
     internship_start: '',
     internship_end: '',
   });
+  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
@@ -26,20 +27,50 @@ const AddUser = () => {
     });
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name) newErrors.name = 'Nama Lengkap wajib diisi.';
+    else if (!/^[a-zA-Z\s]+$/.test(formData.name))
+      newErrors.name = 'Nama hanya boleh berisi huruf dan spasi.';
+
+    if (!formData.username) newErrors.username = 'Username wajib diisi.';
+    else if (!/^[a-z0-9]+$/.test(formData.username))
+      newErrors.username =
+        'Username hanya boleh berisi perpaduan huruf kecil dan angka, tanpa spasi.';
+
+    if (!formData.password) newErrors.password = 'Password wajib diisi.';
+    else if (formData.password.length < 6 || formData.password.length > 10)
+      newErrors.password = 'Password harus memiliki 6 hingga 10 karakter.';
+
+    if (!formData.email) newErrors.email = 'Email wajib diisi.';
+
+    if (formData.phone) {
+      if (!/^[0-9]+$/.test(formData.phone))
+        newErrors.phone = 'Nomor telepon hanya boleh berisi angka.';
+      else if (formData.phone.length > 13)
+        newErrors.phone = 'Nomor telepon maksimal 13 digit angka.';
+    }
+
+    if (!formData.internship_start)
+      newErrors.internship_start = 'Tanggal mulai wajib diisi.';
+
+    if (!formData.internship_end)
+      newErrors.internship_end = 'Tanggal selesai wajib diisi.';
+
+    return newErrors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formErrors = validateForm();
 
-    if (
-      !formData.name ||
-      !formData.username ||
-      !formData.password ||
-      !formData.email ||
-      !formData.internship_start ||
-      !formData.internship_end
-    ) {
-      Swal.fire('Error', 'Semua kolom wajib diisi, kecuali telepon.', 'error');
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
       return;
     }
+
+    setErrors({});
 
     if (
       new Date(formData.internship_start) > new Date(formData.internship_end)
@@ -54,7 +85,7 @@ const AddUser = () => {
 
     try {
       await api.post('/users', formData);
-      Swal.fire(
+      await Swal.fire(
         'Berhasil!',
         `Peserta baru ${formData.name} telah ditambahkan.`,
         'success'
@@ -83,7 +114,7 @@ const AddUser = () => {
                 <div className="input-group">
                   <input
                     type="text"
-                    className="form-control input-group-merged-input"
+                    className={`form-control ${errors.name ? 'is-invalid' : ''} input-group-merged-input`}
                     id="name"
                     name="name"
                     value={formData.name}
@@ -93,6 +124,9 @@ const AddUser = () => {
                     <Icon name="person" />
                   </span>
                 </div>
+                {errors.name && (
+                  <small className="text-danger">{errors.name}</small>
+                )}
               </div>
               <div className="col-md-6">
                 <label htmlFor="username" className="form-label text-black">
@@ -101,7 +135,7 @@ const AddUser = () => {
                 <div className="input-group">
                   <input
                     type="text"
-                    className="form-control input-group-merged-input"
+                    className={`form-control ${errors.username ? 'is-invalid' : ''} input-group-merged-input`}
                     id="username"
                     name="username"
                     value={formData.username}
@@ -111,6 +145,9 @@ const AddUser = () => {
                     <Icon name="person-badge" />
                   </span>
                 </div>
+                {errors.username && (
+                  <small className="text-danger">{errors.username}</small>
+                )}
               </div>
               <div className="col-md-6">
                 <label htmlFor="email" className="form-label text-black">
@@ -119,9 +156,10 @@ const AddUser = () => {
                 <div className="input-group">
                   <input
                     type="email"
-                    className="form-control input-group-merged-input"
+                    className={`form-control ${errors.email ? 'is-invalid' : ''} input-group-merged-input`}
                     id="email"
                     name="email"
+                    placeholder="example@gmail.com"
                     value={formData.email}
                     onChange={handleChange}
                   />
@@ -129,6 +167,9 @@ const AddUser = () => {
                     <Icon name="at" />
                   </span>
                 </div>
+                {errors.email && (
+                  <small className="text-danger">{errors.email}</small>
+                )}
               </div>
               <div className="col-md-6">
                 <label htmlFor="password" className="form-label text-black">
@@ -137,7 +178,7 @@ const AddUser = () => {
                 <div className="input-group">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    className="form-control input-group-merged-input"
+                    className={`form-control ${errors.password ? 'is-invalid' : ''} input-group-merged-input`}
                     id="password"
                     name="password"
                     value={formData.password}
@@ -156,6 +197,9 @@ const AddUser = () => {
                     )}
                   </Button>
                 </div>
+                {errors.password && (
+                  <small className="text-danger">{errors.password}</small>
+                )}
               </div>
               <div className="col-md-6">
                 <label htmlFor="phone" className="form-label text-black">
@@ -164,7 +208,7 @@ const AddUser = () => {
                 <div className="input-group">
                   <input
                     type="text"
-                    className="form-control input-group-merged-input"
+                    className={`form-control ${errors.phone ? 'is-invalid' : ''} input-group-merged-input`}
                     id="phone"
                     name="phone"
                     value={formData.phone}
@@ -174,6 +218,9 @@ const AddUser = () => {
                     <Icon name="telephone" />
                   </span>
                 </div>
+                {errors.phone && (
+                  <small className="text-danger">{errors.phone}</small>
+                )}
               </div>
               <div className="col-md-6">
                 <label htmlFor="role" className="form-label text-black">
@@ -197,14 +244,21 @@ const AddUser = () => {
                 >
                   Tanggal Mulai Magang
                 </label>
-                <input
-                  type="date"
-                  className="form-control"
-                  id="internship_start"
-                  name="internship_start"
-                  value={formData.internship_start}
-                  onChange={handleChange}
-                />
+                <div>
+                  <input
+                    type="date"
+                    className={`form-control ${errors.internship_start ? 'is-invalid' : ''}`}
+                    id="internship_start"
+                    name="internship_start"
+                    value={formData.internship_start}
+                    onChange={handleChange}
+                  />
+                </div>
+                {errors.internship_start && (
+                  <small className="text-danger">
+                    {errors.internship_start}
+                  </small>
+                )}
               </div>
               <div className="col-md-6">
                 <label
@@ -213,14 +267,19 @@ const AddUser = () => {
                 >
                   Tanggal Selesai Magang
                 </label>
-                <input
-                  type="date"
-                  className="form-control"
-                  id="internship_end"
-                  name="internship_end"
-                  value={formData.internship_end}
-                  onChange={handleChange}
-                />
+                <div>
+                  <input
+                    type="date"
+                    className={`form-control ${errors.internship_end ? 'is-invalid' : ''}`}
+                    id="internship_end"
+                    name="internship_end"
+                    value={formData.internship_end}
+                    onChange={handleChange}
+                  />
+                </div>
+                {errors.internship_end && (
+                  <small className="text-danger">{errors.internship_end}</small>
+                )}
               </div>
             </div>
             <div className="d-flex justify-content-end mt-4">
