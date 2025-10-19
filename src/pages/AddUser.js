@@ -34,10 +34,16 @@ const AddUser = () => {
     else if (!/^[a-zA-Z\s]+$/.test(formData.name))
       newErrors.name = 'Nama hanya boleh berisi huruf dan spasi.';
 
-    if (!formData.username) newErrors.username = 'Username wajib diisi.';
-    else if (!/^[a-z0-9]+$/.test(formData.username))
-      newErrors.username =
-        'Username hanya boleh berisi perpaduan huruf kecil dan angka, tanpa spasi.';
+    if (!formData.username) {
+      newErrors.username = 'Username wajib diisi.';
+    } else {
+      const containsValidChars = /^[a-z0-9]+$/.test(formData.username);
+      const containsLetter = /[a-z]/.test(formData.username);
+      if (!containsValidChars || !containsLetter) {
+        newErrors.username =
+          'Username harus kombinasi huruf atau huruf dengan angka, dan tidak boleh hanya angka.';
+      }
+    }
 
     if (!formData.password) newErrors.password = 'Password wajib diisi.';
     else if (formData.password.length < 6 || formData.password.length > 10)
@@ -52,11 +58,25 @@ const AddUser = () => {
         newErrors.phone = 'Nomor telepon maksimal 13 digit angka.';
     }
 
-    if (!formData.internship_start)
+    if (!formData.internship_start) {
       newErrors.internship_start = 'Tanggal mulai wajib diisi.';
+    } else {
+      const startDate = new Date(formData.internship_start + 'T00:00:00');
+      if (startDate.getDay() === 0 || startDate.getDay() === 6) {
+        newErrors.internship_start =
+          'Tanggal mulai tidak boleh jatuh pada hari Sabtu atau Minggu.';
+      }
+    }
 
-    if (!formData.internship_end)
+    if (!formData.internship_end) {
       newErrors.internship_end = 'Tanggal selesai wajib diisi.';
+    } else {
+      const endDate = new Date(formData.internship_end + 'T00:00:00');
+      if (endDate.getDay() === 0 || endDate.getDay() === 6) {
+        newErrors.internship_end =
+          'Tanggal selesai tidak boleh jatuh pada hari Sabtu atau Minggu.';
+      }
+    }
 
     return newErrors;
   };
