@@ -14,6 +14,7 @@ const EditAttendance = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
   const [user, setUser] = useState(null);
+  const [allAttendance, setAllAttendance] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState({});
 
@@ -28,9 +29,10 @@ const EditAttendance = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [userRes, attendanceRes] = await Promise.all([
+        const [userRes, attendanceRes, allAttendanceRes] = await Promise.all([
           api.get(`/users/${userId}`),
           api.get(`/users/${userId}/attendance/${attendanceId}`),
+          api.get(`/users/${userId}/attendance/history`),
         ]);
 
         setUser(userRes.data);
@@ -39,6 +41,7 @@ const EditAttendance = () => {
           date: attendanceRes.data.date,
           check_in_time: formatDateTimeLocal(attendanceRes.data.check_in_time),
         });
+        setAllAttendance(allAttendanceRes.data);
       } catch (error) {
         Swal.fire('Error', 'Gagal memuat data.', 'error');
       } finally {
@@ -63,6 +66,19 @@ const EditAttendance = () => {
         });
         return;
       }
+    }
+
+    const otherAttendances = allAttendance.filter(
+      (att) => att._id !== attendanceId
+    );
+    const isDateDuplicate = otherAttendances.some((att) => att.date === value);
+    if (isDateDuplicate) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Tanggal Duplikat',
+        text: 'Tanggal yang dipilih sudah memiliki catatan absensi. Silakan pilih tanggal lain.',
+      });
+      return;
     }
 
     let updatedData = { ...formData, [name]: value };
