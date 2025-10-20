@@ -207,7 +207,16 @@ const UserDetail = () => {
     );
     const isAttendanceIncomplete =
       attendance.length !== expectedAttendanceCount;
-    const presentCount = attendance.filter((a) => a.status === 'Hadir').length;
+
+    const presentCount = attendance.filter(
+      (a) => a.status === 'Hadir' || a.status === 'Di Luar Area'
+    ).length;
+    const leaveCount = attendance.filter(
+      (a) => a.status === 'Izin' || a.status === 'Izin Disetujui'
+    ).length;
+    const absentCount = attendance.filter(
+      (a) => a.status === 'Tidak Hadir'
+    ).length;
 
     return (
       <>
@@ -294,7 +303,8 @@ const UserDetail = () => {
           </div>
         </div>
         <p className="text-muted">
-          Total Kehadiran: {presentCount} dari {attendance.length} hari kerja.
+          Total Kehadiran: {presentCount} hari Hadir, {leaveCount} hari Izin,{' '}
+          {absentCount} hari Tidak Hadir dari {attendance.length} hari kerja.
         </p>
 
         <div className="list-group">

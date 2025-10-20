@@ -13,7 +13,9 @@ const EditAttendance = () => {
   const { userId, attendanceId } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState({});
 
   const formatDateTimeLocal = (isoString) => {
     if (!isoString) return '';
@@ -23,24 +25,27 @@ const EditAttendance = () => {
   };
 
   useEffect(() => {
-    const fetchAttendance = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await api.get(
-          `/users/${userId}/attendance/${attendanceId}`
-        );
+        const [userRes, attendanceRes] = await Promise.all([
+          api.get(`/users/${userId}`),
+          api.get(`/users/${userId}/attendance/${attendanceId}`),
+        ]);
+
+        setUser(userRes.data);
         setFormData({
-          ...res.data,
-          date: res.data.date,
-          check_in_time: formatDateTimeLocal(res.data.check_in_time),
+          ...attendanceRes.data,
+          date: attendanceRes.data.date,
+          check_in_time: formatDateTimeLocal(attendanceRes.data.check_in_time),
         });
       } catch (error) {
-        Swal.fire('Error', 'Gagal memuat data absensi.', 'error');
+        Swal.fire('Error', 'Gagal memuat data.', 'error');
       } finally {
         setLoading(false);
       }
     };
-    fetchAttendance();
+    fetchData();
   }, [userId, attendanceId]);
 
   const handleChange = (e) => {
@@ -60,13 +65,24 @@ const EditAttendance = () => {
       }
     }
 
-    const updatedData = { ...formData, [name]: value };
-    const lat =
-      name === 'check_in_latitude' ? value : updatedData.check_in_latitude;
-    const lon =
-      name === 'check_in_longitude' ? value : updatedData.check_in_longitude;
+    let updatedData = { ...formData, [name]: value };
 
-    if (updatedData.status === 'Hadir') {
+    const lat = updatedData.check_in_latitude;
+    const lon = updatedData.check_in_longitude;
+
+    const isCoordinateChange =
+      name === 'check_in_latitude' || name === 'check_in_longitude';
+    const isStatusManuallyChangedToHadir =
+      name === 'status' && value === 'Hadir';
+
+    const isStatusOverridable =
+      !['Izin', 'Izin Disetujui'].includes(formData.status) ||
+      isStatusManuallyChangedToHadir;
+
+    if (
+      (isCoordinateChange && isStatusOverridable) ||
+      isStatusManuallyChangedToHadir
+    ) {
       if (lat && lon) {
         const distance = getDistanceFromLatLonInMeters(
           parseFloat(lat),
@@ -74,6 +90,7 @@ const EditAttendance = () => {
           OFFICE_COORDINATES.latitude,
           OFFICE_COORDINATES.longitude
         );
+
         updatedData.status =
           distance > GEOFENCE_RADIUS_METERS ? 'Di Luar Area' : 'Hadir';
       }
@@ -81,8 +98,47 @@ const EditAttendance = () => {
     setFormData(updatedData);
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (formData.date) {
+      if (user && user.internship_start && user.internship_end) {
+        const startDateStr = new Date(user.internship_start)
+          .toISOString()
+          .split('T')[0];
+        const endDateStr = new Date(user.internship_end)
+          .toISOString()
+          .split('T')[0];
+
+        if (formData.date < startDateStr || formData.date > endDateStr) {
+          newErrors.date = 'Tanggal absen harus dalam rentang magang.';
+        }
+      }
+    } else {
+      newErrors.date = 'Tanggal absen wajib diisi.';
+    }
+
+    if (formData.check_in_time) {
+      const checkInDateStr = formData.check_in_time.split('T')[0];
+      if (checkInDateStr !== formData.date) {
+        newErrors.check_in_time =
+          'Tanggal check-in harus sama dengan tanggal absen.';
+      }
+    }
+
+    return newErrors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
+    setErrors({});
+
     const payload = {
       ...formData,
       check_in_latitude: formData.check_in_latitude || null,
@@ -139,7 +195,11 @@ const EditAttendance = () => {
                     name="date"
                     value={formData.date || ''}
                     onChange={handleChange}
+                    isInvalid={!!errors.date}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.date}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
               <div className="col-md-6">
@@ -150,7 +210,11 @@ const EditAttendance = () => {
                     name="check_in_time"
                     value={formData.check_in_time || ''}
                     onChange={handleChange}
+                    isInvalid={!!errors.check_in_time}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.check_in_time}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
             </div>

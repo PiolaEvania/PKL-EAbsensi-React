@@ -46,7 +46,7 @@ const AttendanceDetail = () => {
             'Catatan absensi telah dihapus.',
             'success'
           );
-          navigate(`/peserta/${userId}`); // Kembali ke halaman detail peserta
+          navigate(`/peserta/${userId}`);
         } catch (error) {
           Swal.fire('Gagal', 'Gagal menghapus catatan absensi.', 'error');
         }
