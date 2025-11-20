@@ -69,8 +69,17 @@ const EditUser = () => {
     )
       newErrors.password = 'Password harus memiliki 6 hingga 10 karakter.';
 
-    if (!formData.email) newErrors.email = 'Email wajib diisi.';
+    if (!formData.email) {
+      newErrors.email = 'Email wajib diisi.';
+    } else if (
+      !/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+        formData.email
+      )
+    ) {
+      newErrors.email = 'Format email tidak valid.';
+    }
 
+    if (!formData.phone) newErrors.phone = 'Nomor telepon wajib diisi.';
     if (formData.phone) {
       if (!/^[0-9]+$/.test(formData.phone))
         newErrors.phone = 'Nomor telepon hanya boleh berisi angka.';
