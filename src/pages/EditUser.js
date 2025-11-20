@@ -58,7 +58,7 @@ const EditUser = () => {
       const containsLetter = /[a-z]/.test(formData.username);
       if (!containsValidChars || !containsLetter)
         newErrors.username =
-          'Username harus kombinasi huruf atau huruf dengan angka, dan tidak boleh hanya angka.';
+          'Username harus kombinasi huruf kecil atau huruf kecil dengan angka, dan tidak boleh hanya angka.';
       if (formData.username.length > 20)
         newErrors.username = 'Username maksimal 20 karakter.';
     }
