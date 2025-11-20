@@ -83,8 +83,8 @@ const EditUser = () => {
     if (formData.phone) {
       if (!/^[0-9]+$/.test(formData.phone))
         newErrors.phone = 'Nomor telepon hanya boleh berisi angka.';
-      else if (formData.phone.length > 13)
-        newErrors.phone = 'Nomor telepon maksimal 13 digit angka.';
+      else if (formData.phone.length < 10 || formData.phone.length > 13)
+        newErrors.phone = 'Nomor telepon harus memiliki 10 hingga 13 digit.';
     }
 
     if (!formData.internship_start) {
