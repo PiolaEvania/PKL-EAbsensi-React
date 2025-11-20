@@ -31,18 +31,21 @@ const AddUser = () => {
     const newErrors = {};
 
     if (!formData.name) newErrors.name = 'Nama Lengkap wajib diisi.';
-    else if (!/^[a-zA-Z\s]+$/.test(formData.name))
+    if (!/^[a-zA-Z\s]+$/.test(formData.name))
       newErrors.name = 'Nama hanya boleh berisi huruf dan spasi.';
+    else if (formData.name.length > 100)
+      newErrors.name = 'Username maksimal 100 karakter.';
 
     if (!formData.username) {
       newErrors.username = 'Username wajib diisi.';
     } else {
       const containsValidChars = /^[a-z0-9]+$/.test(formData.username);
       const containsLetter = /[a-z]/.test(formData.username);
-      if (!containsValidChars || !containsLetter) {
+      if (!containsValidChars || !containsLetter)
         newErrors.username =
-          'Username harus kombinasi huruf atau huruf dengan angka, dan tidak boleh hanya angka.';
-      }
+          'Username harus kombinasi huruf kecil atau huruf kecil dengan angka, dan tidak boleh hanya angka.';
+      else if (formData.username.length > 20)
+        newErrors.username = 'Username maksimal 20 karakter.';
     }
 
     if (!formData.password) newErrors.password = 'Password wajib diisi.';
