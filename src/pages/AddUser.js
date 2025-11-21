@@ -30,11 +30,13 @@ const AddUser = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name) newErrors.name = 'Nama Lengkap wajib diisi.';
-    if (!/^[a-zA-Z\s]+$/.test(formData.name))
+    if (!formData.name || formData.name.trim().length === 0) {
+      newErrors.name = 'Nama Lengkap wajib diisi.';
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.name)) {
       newErrors.name = 'Nama hanya boleh berisi huruf dan spasi.';
-    else if (formData.name.length > 100)
-      newErrors.name = 'Username maksimal 100 karakter.';
+    } else if (formData.name.length > 100) {
+      newErrors.name = 'Nama maksimal 100 karakter.';
+    }
 
     if (!formData.username) {
       newErrors.username = 'Username wajib diisi.';
