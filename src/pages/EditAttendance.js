@@ -83,6 +83,16 @@ const EditAttendance = () => {
 
     let updatedData = { ...formData, [name]: value };
 
+    if (name === 'status' && value === 'Tidak Hadir') {
+      updatedData = {
+        ...updatedData,
+        check_in_time: '',
+        check_in_latitude: '',
+        check_in_longitude: '',
+        notes: '',
+      };
+    }
+
     const lat = updatedData.check_in_latitude;
     const lon = updatedData.check_in_longitude;
 

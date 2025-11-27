@@ -10,22 +10,79 @@ const AttendanceDetail = () => {
   const navigate = useNavigate();
   const [attendance, setAttendance] = useState(null);
   const [user, setUser] = useState(null);
+  const [duplicateNames, setDuplicateNames] = useState([]);
+  const [checkingDuplicates, setCheckingDuplicates] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
+        setLoading(true);
+
         const attendanceRes = await api.get(
           `/users/${userId}/attendance/${attendanceId}`
         );
-        setAttendance(attendanceRes.data);
         const userRes = await api.get(`/users/${userId}`);
+
+        setAttendance(attendanceRes.data);
         setUser(userRes.data);
+
+        const currentAndroidId = attendanceRes.data.android_id;
+
+        if (currentAndroidId) {
+          checkDuplicateDevice(currentAndroidId, userId);
+        }
       } catch (error) {
         console.error('Gagal mengambil detail', error);
+        Swal.fire('Error', 'Gagal memuat data.', 'error');
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchDetails();
   }, [userId, attendanceId]);
+
+  const checkDuplicateDevice = async (targetDeviceId, currentUserId) => {
+    setCheckingDuplicates(true);
+    try {
+      const allUsersRes = await api.get('/users?status=active');
+      const allUsers = allUsersRes.data;
+
+      const otherUsers = allUsers.filter((u) => u._id !== currentUserId);
+
+      const detectedDuplicates = [];
+
+      await Promise.all(
+        otherUsers.map(async (otherUser) => {
+          try {
+            const historyRes = await api.get(
+              `/users/${otherUser._id}/attendance/history`
+            );
+            const history = historyRes.data;
+
+            const isMatch = history.find(
+              (h) => h.android_id === targetDeviceId
+            );
+
+            if (isMatch) {
+              detectedDuplicates.push(otherUser.name);
+            }
+          } catch (err) {
+            console.warn(`Gagal cek history untuk ${otherUser.name}`, err);
+          }
+        })
+      );
+
+      if (detectedDuplicates.length > 0) {
+        setDuplicateNames(detectedDuplicates);
+      }
+    } catch (error) {
+      console.error('Gagal mengecek duplikasi device:', error);
+    } finally {
+      setCheckingDuplicates(false);
+    }
+  };
 
   const handleDeleteAttendance = () => {
     Swal.fire({
@@ -69,7 +126,7 @@ const AttendanceDetail = () => {
         </Button>
       </div>
 
-      {!attendance || !user ? (
+      {loading || !attendance || !user ? (
         <div className="text-center mt-5">
           <Spinner animation="border" />
         </div>
@@ -126,9 +183,33 @@ const AttendanceDetail = () => {
             <p>
               <strong>IP Address:</strong> {attendance.ip_address || '-'}
             </p>
-            <p>
-              <strong>Android ID:</strong> {attendance.android_id || '-'}
-            </p>
+
+            <div className="mb-3">
+              <p className="mb-1">
+                <strong>Android ID:</strong> {attendance.android_id || '-'}
+              </p>
+
+              {checkingDuplicates && (
+                <small className="text-muted fst-italic">
+                  <Spinner animation="border" size="sm" className="me-1" />
+                  Mengecek duplikasi perangkat...
+                </small>
+              )}
+
+              {!checkingDuplicates && duplicateNames.length > 0 && (
+                <div className="alert alert-danger py-1 px-2 d-inline-block mt-1 mb-0">
+                  <small className="fw-bold d-flex align-items-center">
+                    <Icon name="exclamation-triangle" className="me-2" />
+                    <span>
+                      Terdeteksi Potensi Titip Absen! <br />
+                      Device ID ini juga digunakan oleh:{' '}
+                      {duplicateNames.join(', ')}
+                    </span>
+                  </small>
+                </div>
+              )}
+            </div>
+
             <p>
               <strong>Catatan:</strong> {attendance.notes || '-'}
             </p>
