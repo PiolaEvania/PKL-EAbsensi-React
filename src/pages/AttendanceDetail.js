@@ -127,6 +127,9 @@ const AttendanceDetail = () => {
               <strong>IP Address:</strong> {attendance.ip_address || '-'}
             </p>
             <p>
+              <strong>Android ID:</strong> {attendance.android_id || '-'}
+            </p>
+            <p>
               <strong>Catatan:</strong> {attendance.notes || '-'}
             </p>
           </Card.Body>
