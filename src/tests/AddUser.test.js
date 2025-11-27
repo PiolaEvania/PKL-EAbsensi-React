@@ -28,10 +28,12 @@ describe('AddUser Page', () => {
       name: 'Budi Santoso',
       username: 'budisan',
       email: 'budi@example.com',
-      password: 'password123',
+      password: 'pass123',
+      phone: '081234567890',
       internship_start: '2025-10-01',
-      internship_end: '2025-12-01',
+      internship_end: '2025-10-31',
     };
+
     const formData = { ...defaultData, ...data };
 
     fireEvent.change(screen.getByLabelText(/Nama Lengkap/i), {
@@ -45,6 +47,9 @@ describe('AddUser Page', () => {
     });
     fireEvent.change(screen.getByLabelText(/Password/i), {
       target: { value: formData.password },
+    });
+    fireEvent.change(screen.getByLabelText(/Telepon/i), {
+      target: { value: formData.phone },
     });
     fireEvent.change(screen.getByLabelText(/Tanggal Mulai Magang/i), {
       target: { value: formData.internship_start },
@@ -60,7 +65,6 @@ describe('AddUser Page', () => {
 
     render(<AddUser />);
     fillForm();
-
     const saveButton = screen.getByRole('button', { name: /Simpan Peserta/i });
     fireEvent.click(saveButton);
 
@@ -84,21 +88,17 @@ describe('AddUser Page', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        'Error',
-        'Semua kolom wajib diisi, kecuali telepon.',
-        'error'
-      );
+      expect(screen.getByText('Nama Lengkap wajib diisi.')).toBeInTheDocument();
       expect(api.post).not.toHaveBeenCalled();
     });
   });
 
-  test('should show a date validation error if end date is before start date', async () => {
+  test('should show a date validation error via Swal if end date is before start date', async () => {
     render(<AddUser />);
 
     fillForm({
-      internship_start: '2025-12-01',
-      internship_end: '2025-11-01',
+      internship_start: '2025-10-31',
+      internship_end: '2025-10-01',
     });
 
     const saveButton = screen.getByRole('button', { name: /Simpan Peserta/i });

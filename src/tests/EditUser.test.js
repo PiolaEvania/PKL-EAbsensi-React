@@ -26,7 +26,7 @@ const mockUser = {
   name: 'Initial Name',
   username: 'initialuser',
   email: 'initial@example.com',
-  phone: '0812345',
+  phone: '08123456789',
   role: 'user',
   internship_start: '2025-10-01',
   internship_end: '2025-10-31',
@@ -44,6 +44,14 @@ describe('EditUser Page', () => {
     await waitFor(() => {
       const nameInput = container.querySelector('input[name="name"]');
       expect(nameInput).toHaveValue('Initial Name');
+      const usernameInput = container.querySelector('input[name="username"]');
+      expect(usernameInput).toHaveValue('initialuser');
+      const emailInput = container.querySelector('input[name="email"]');
+      expect(emailInput).toHaveValue('initial@example.com');
+      const startDateInput = container.querySelector(
+        'input[name="internship_start"]'
+      );
+      expect(startDateInput).toHaveValue('2025-10-01');
     });
   });
 
@@ -92,7 +100,7 @@ describe('EditUser Page', () => {
     );
 
     fireEvent.change(startDateInput, { target: { value: '2025-12-01' } });
-    fireEvent.change(endDateInput, { target: { value: '2025-11-01' } });
+    fireEvent.change(endDateInput, { target: { value: '2025-11-03' } });
 
     fireEvent.click(screen.getByRole('button', { name: /Simpan Perubahan/i }));
 

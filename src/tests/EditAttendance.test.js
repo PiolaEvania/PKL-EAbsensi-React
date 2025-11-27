@@ -26,10 +26,28 @@ const mockAttendance = {
   check_in_longitude: null,
 };
 
+const mockUser = {
+  _id: 'user123',
+  name: 'Budi Santoso',
+};
+
+const mockHistory = [mockAttendance, { _id: 'att2', date: '2025-10-11' }];
+
 describe('EditAttendance Page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    api.get.mockResolvedValue({ data: mockAttendance });
+    api.get.mockImplementation((url) => {
+      if (url.includes('/attendance/history')) {
+        return Promise.resolve({ data: mockHistory });
+      }
+      if (url.includes('/attendance/att1')) {
+        return Promise.resolve({ data: mockAttendance });
+      }
+      if (url.includes('/users/user123')) {
+        return Promise.resolve({ data: mockUser });
+      }
+      return Promise.reject(new Error('Not Found'));
+    });
   });
 
   test('should pre-fill the form with attendance data after fetch', async () => {
@@ -116,6 +134,7 @@ describe('EditAttendance Page', () => {
 
     fireEvent.change(latitudeInput, { target: { value: '-3.4' } });
     fireEvent.change(longitudeInput, { target: { value: '114.7' } });
+
     fireEvent.change(statusSelect, { target: { value: 'Hadir' } });
 
     expect(statusSelect).toHaveValue('Di Luar Area');
